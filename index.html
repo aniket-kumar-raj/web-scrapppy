@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spider-Scrape | Web-Shooter OS</title>
+  
+  <!-- Google Fonts: 'Bangers' for comic headers, 'Plus Jakarta Sans' for readable text -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --spidey-red: #e23636;
+      --spidey-blue: #0047bb;
+      --symbiote-black: #111;
+      --web-white: #ffffff;
+      --bg-color: #f4f4f5;
+      
+      /* Comic Book styling rules */
+      --thick-border: 4px solid var(--symbiote-black);
+      --comic-shadow: 6px 6px 0px var(--symbiote-black);
+      --comic-shadow-sm: 4px 4px 0px var(--symbiote-black);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      /* Halftone/Dot pattern background to look like a comic book page */
+      background-color: var(--bg-color);
+      background-image: radial-gradient(#d4d4d8 2px, transparent 2px);
+      background-size: 20px 20px;
+      color: var(--symbiote-black);
+      padding: 60px 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container { width: 100%; max-width: 760px; }
+    
+    header { margin-bottom: 40px; text-align: center; }
+    
+    header h1 { 
+      font-family: 'Bangers', cursive; 
+      font-size: 56px; 
+      color: var(--spidey-red);
+      text-shadow: 3px 3px 0px var(--symbiote-black);
+      letter-spacing: 3px;
+      margin-bottom: 8px;
+    }
+    
+    header p { 
+      font-weight: 800; 
+      font-size: 16px; 
+      text-transform: uppercase;
+      background: var(--spidey-blue);
+      color: white;
+      display: inline-block;
+      padding: 6px 16px;
+      border: 2px solid var(--symbiote-black);
+      transform: rotate(-2deg);
+    }
+
+    /* The Comic Panel class used for all boxes */
+    .comic-panel {
+      background: var(--web-white);
+      border: var(--thick-border);
+      box-shadow: var(--comic-shadow);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .input-wrapper {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    input {
+      flex: 1;
+      background: var(--web-white);
+      border: var(--thick-border);
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      outline: none;
+      box-shadow: var(--comic-shadow-sm);
+      border-radius: 8px;
+    }
+
+    input:focus {
+      background: #fffbdf; /* Light yellow focus */
+    }
+
+    button {
+      font-family: 'Bangers', cursive;
+      font-size: 24px;
+      letter-spacing: 2px;
+      background: var(--spidey-red);
+      color: var(--web-white);
+      border: var(--thick-border);
+      padding: 0 30px;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: var(--comic-shadow-sm);
+      transition: all 0.1s ease;
+    }
+
+    button:active {
+      transform: translate(4px, 4px);
+      box-shadow: 0px 0px 0px var(--symbiote-black);
+    }
+
+    .loader {
+      display: none;
+      text-align: center;
+      padding: 40px;
+      font-weight: 800;
+      font-size: 20px;
+      font-style: italic;
+      color: var(--spidey-blue);
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.05); }
+    }
+
+    .results { display: none; flex-direction: column; gap: 20px; }
+
+    .card-title {
+      font-family: 'Bangers', cursive;
+      font-size: 28px;
+      color: var(--spidey-blue);
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+      display: block;
+      border-bottom: 3px solid var(--symbiote-black);
+      padding-bottom: 8px;
+    }
+
+    .trust-score-row {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .score-number { 
+      font-family: 'Bangers', cursive;
+      font-size: 64px; 
+      line-height: 1;
+      text-shadow: 2px 2px 0px var(--symbiote-black);
+    }
+
+    .status-pill {
+      padding: 6px 16px;
+      border: 3px solid var(--symbiote-black);
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      box-shadow: 3px 3px 0px var(--symbiote-black);
+      border-radius: 4px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 16px;
+      background: var(--web-white);
+      border: 3px solid var(--symbiote-black);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .progress-fill { 
+      height: 100%; 
+      width: 0%; 
+      border-right: 3px solid var(--symbiote-black);
+      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1); 
+    }
+
+    .signals { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .signal-item {
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      border: 2px dashed var(--symbiote-black);
+      border-radius: 4px;
+    }
+
+    .summary-box {
+      background: #fffbdf; /* Comic narration box yellow */
+      border: 3px solid var(--symbiote-black);
+      padding: 20px;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.6;
+      white-space: pre-line;
+      position: relative;
+      box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+    }
+
+    /* Little comic book narration tag */
+    .summary-box::before {
+      content: 'JARVIS / KAREN SAYS:';
+      position: absolute;
+      top: -14px;
+      left: -3px;
+      background: var(--symbiote-black);
+      color: var(--web-white);
+      font-family: 'Bangers', cursive;
+      font-size: 14px;
+      padding: 2px 8px;
+      letter-spacing: 1px;
+    }
+
+    .chip-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+    .chip {
+      background: var(--spidey-blue);
+      border: 2px solid var(--symbiote-black);
+      font-weight: 800;
+      font-size: 12px;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      color: var(--web-white);
+      box-shadow: 2px 2px 0px var(--symbiote-black);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Spider-Scrape</h1>
+    <p>With great scraping comes great data.</p>
+  </header>
+
+  <div class="input-wrapper">
+    <input type="text" id="targetUrl" placeholder="Thwip a URL here (e.g., dailybugle.com) 🕸️..." />
+    <button onclick="inspectSite()">THWIP!</button>
+  </div>
+
+  <div id="loader" class="loader">My Spider-Sense is tingling... scanning the multiverse! 🕷️⚡</div>
+
+  <div id="results" class="results">
+    
+    <!-- Trust Score Card -->
+    <div class="comic-panel">
+      <div style="display: flex; justify-content: space-between; align-items: baseline;">
+        <span class="card-title">Spider-Sense Threat Level</span>
+        <span id="domainTag" style="font-weight: 800; border-bottom: 2px solid;"></span>
+      </div>
+
+      <div class="trust-score-row">
+        <div id="scoreNum" class="score-number">0</div>
+        <div id="statusPill" class="status-pill"></div>
+      </div>
+
+      <div class="progress-track">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+
+      <div id="signalsGrid" class="signals"></div>
+    </div>
+
+    <!-- Summary Card -->
+    <div class="comic-panel">
+      <span class="card-title">Web-Slinging Summary</span>
+      <div id="summaryText" class="summary-box"></div>
+    </div>
+
+    <!-- Meta Details Card -->
+    <div class="comic-panel">
+      <span class="card-title">Stark Tech Diagnostics</span>
+      
+      <p style="font-size: 18px; font-weight: 800; margin-bottom: 8px;" id="siteTitle"></p>
+      <p style="font-size: 15px; font-weight: 600; line-height: 1.5; margin-bottom: 20px;" id="siteDesc"></p>
+      
+      <p style="font-family: 'Bangers', cursive; font-size: 20px; color: var(--spidey-red); letter-spacing: 1px;">Detected Navigational Waypoints</p>
+      <div id="navChips" class="chip-container"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  async function inspectSite() {
+    const url = document.getElementById('targetUrl').value;
+    const loader = document.getElementById('loader');
+    const results = document.getElementById('results');
+
+    if (!url) return alert('Whoa there, web-head! Enter a URL first.');
+
+    loader.style.display = 'block';
+    results.style.display = 'none';
+
+    try {
+      const res = await fetch('http://localhost:3000/api/scrape', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+
+      const data = await res.json();
+      loader.style.display = 'none';
+
+      if (!data.success) return alert('Oh boy. ' + data.error);
+
+      // Render Trust Analysis
+      document.getElementById('domainTag').innerText = data.domain;
+      
+      const scoreElement = document.getElementById('scoreNum');
+      scoreElement.innerText = `${data.trust.score}/100`;
+      scoreElement.style.color = data.trust.color;
+      
+      const pill = document.getElementById('statusPill');
+      pill.innerText = data.trust.rating;
+      pill.style.backgroundColor = data.trust.color;
+      // Make text dark if background is bright green/yellow, white if red
+      pill.style.color = data.trust.color === '#f43f5e' ? 'white' : 'black';
+
+      const fill = document.getElementById('progressFill');
+      fill.style.width = data.trust.score + '%';
+      fill.style.backgroundColor = data.trust.color;
+
+      document.getElementById('signalsGrid').innerHTML = data.trust.indicators.map(ind => `
+        <div class="signal-item" style="background: ${ind.pass ? '#f0fdf4' : '#fff1f2'}; border-color: ${ind.pass ? '#16a34a' : '#e11d48'};">
+          <span style="font-size: 18px;">${ind.pass ? '✅' : '🚨'}</span>
+          <span>${ind.text}</span>
+        </div>
+      `).join('');
+
+      // Render Summary & Metadata
+      document.getElementById('summaryText').innerText = data.aiSummary;
+      document.getElementById('siteTitle').innerText = data.title;
+      document.getElementById('siteDesc').innerText = data.description || 'No metadata description provided... the stealth tech is too good.';
+
+      document.getElementById('navChips').innerHTML = data.navLinks.length 
+        ? data.navLinks.map(n => `<span class="chip">${n}</span>`).join('')
+        : '<span class="chip" style="background: var(--symbiote-black);">Nothing found here</span>';
+
+      results.style.display = 'flex';
+
+    } catch (err) {
+      loader.style.display = 'none';
+      alert('My web-shooters jammed! Error: ' + err.message);
+    }
+  }
+</script>
+
+</body>
+</html>
