@@ -11,3 +11,5 @@ https://web-scrapppy.onrender.com
 
 I have added some cool ui and
 if I say that what best in my code then it's the ui as I spent a lot of time making this, check out the code in `index.html` for ui and `script.js` for scraping code, this was my first website so if you find any big then report it to me on aniketxraj15@gmail.com
+
+![this is what info should it give](example.png)
